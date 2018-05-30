@@ -8,9 +8,11 @@ import com.taotao.common.utils.ExceptionUtil;
 import com.taotao.common.utils.IDUtils;
 import com.taotao.mapper.TbItemDescMapper;
 import com.taotao.mapper.TbItemMapper;
+import com.taotao.mapper.TbItemParamItemMapper;
 import com.taotao.pojo.TbItem;
 import com.taotao.pojo.TbItemDesc;
 import com.taotao.pojo.TbItemExample;
+import com.taotao.pojo.TbItemParamItem;
 import com.taotao.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,9 @@ public class ItemServiceImpl implements ItemService {
     @Autowired
     private TbItemDescMapper itemDescMapper;
 
+    @Autowired
+    private TbItemParamItemMapper itemParamItemMapper;
+
     @Override
     public TbItem getItemById(Long id) {
         return itemMapper.selectByPrimaryKey(id);
@@ -49,7 +54,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public TaotaoResult saveItem(TbItem item, TbItemDesc itemDesc) {
+    public TaotaoResult saveItem(TbItem item, TbItemDesc itemDesc, String itemParams) {
         try {
             long id = IDUtils.genItemId();
             Date date = new Date();
@@ -62,6 +67,13 @@ public class ItemServiceImpl implements ItemService {
             itemDesc.setCreated(date);
             itemDesc.setUpdated(date);
             itemDescMapper.insert(itemDesc);
+
+            TbItemParamItem itemParamItem = new TbItemParamItem();
+            itemParamItem.setCreated(new Date());
+            itemParamItem.setUpdated(new Date());
+            itemParamItem.setParamData(itemParams);
+            itemParamItem.setItemId(id);
+            itemParamItemMapper.insert(itemParamItem);
         } catch (Exception e) {
             e.printStackTrace();
             return TaotaoResult.build(500, ExceptionUtil.getStackTrace(e));
